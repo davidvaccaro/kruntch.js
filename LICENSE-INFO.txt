@@ -1,0 +1,9 @@
+/*
+* kruntch.js v@VERSION
+* http://kruntch.com
+*
+* Copyright 2013 David Vaccaro
+* Released under the MIT license.
+* http://kruntch.com/license
+*
+*/
