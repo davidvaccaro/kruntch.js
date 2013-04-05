@@ -18,4 +18,4 @@ David Vaccaro
 
 #Licence
 
-See LICENCE-INFO.txt
+See LICENSE-INFO.txt
