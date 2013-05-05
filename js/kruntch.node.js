@@ -1414,8 +1414,23 @@ function processRoot(id, model, tio) {
 
 // Public Member Functions
 
-// Apply the specified "template" to the specified "model" and return the resultant HTML (or also set the HTML to the innerHTML of the specified "to" HTML node)
+// Apply the specified "template" to the specified "model" and return the resultant HTML
 Kruntch.Apply = function (id, model, to, asynch, done) {
+
+	// Handle simplified calling convention
+	if (to instanceof Function)
+	{
+
+		// Set the "success" handler
+		done = to;
+
+		// Set the "to" to undefined
+		to = undefined;
+
+		// Set "asynch" to true
+		asynch = true;
+
+	}
 
 	// Establish the optional params
 	if (asynch == undefined)
