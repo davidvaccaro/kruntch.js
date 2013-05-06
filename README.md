@@ -25,8 +25,8 @@ IE 7+, FF, Chrome, Mobile Safari, Mobile Chrome
 
 Current contributer list:
 
-David Vaccaro
-George Vaccaro
+- David Vaccaro
+- George Vaccaro
 
 #Licence
 
