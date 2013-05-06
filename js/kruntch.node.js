@@ -797,6 +797,10 @@ function processFOR(template) {
 		// Access the item
 		var oitem = collection.items[oidx];
 
+		// Check the item state
+		if ((oitem == null) || (oitem == undefined))
+			continue;
+
 		// Access the item (as a string)
 		var oitemStr = oitem.toString();
 
@@ -845,7 +849,8 @@ function processWITH(template) {
 		// Access the NTH item
 		var oitem = collection.at(template.details.nth[nidx].at);
 
-		if (oitem == undefined)
+		// Check the item state
+		if ((oitem == null) || (oitem == undefined))
 			continue;
 
 		// Access the item (as a string)
@@ -1082,7 +1087,7 @@ function preProcessTemplate(template) {
 		end = template.pre.indexOf('}}', begin);
 
 		// Extract the script
-		var script = template.pre.slice(begin, end + 1);
+		var script = template.pre.slice(begin, end + 2);
 
 		// Return the string with the item replaced
 		template.pre = [template.pre.slice(0, begin), key, template.pre.slice(end + 2)].join('');
