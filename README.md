@@ -8,6 +8,10 @@ A Simple, Efficient and Non-Invasive Templating Engine for JavaScript.
 
 #Change Log
 
+1.1.1
+- Added "empty" construct for collections which allows template authors to specify a sub-template to be applied in the event that the collection is empty.
+- Fixed a minor issue in the collection accesing function that prevented [#] from working under certain circumstances.
+
 1.1.0
 - Major re-write removing all DOM (document, window, etc.) constructs in an effort to make kruntch totally portable to node.js.
 - Template parsing was most affected as 1.0.0 was heavily relying on DOM to parse the template text into traversable nodes.
