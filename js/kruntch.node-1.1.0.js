@@ -34,7 +34,8 @@ var keywords = {
 	'else': true,
 	'first': true,
 	'last': true,
-	'nth': true
+	'nth': true,
+	'empty': true
 };
 
 // Determine of the specified charachter is "whitespace"
@@ -442,8 +443,14 @@ function selectCollection(template, view, value, where) {
 
 			// Apply the filter
 			if (filter.call(cobj) == true) {
+
+				// Select the object that passed the filter
 				filtered.push(cobj);
-				filteredNames.push(cname);
+
+				// Select the name that passed the filter (if the name is valid)
+				if ((cname != null) && (cname != null))
+					filteredNames.push(cname);
+
 			}
 
 		}
@@ -471,7 +478,7 @@ function selectCollection(template, view, value, where) {
 function makeForTemplateDetails(template) {
 
 	// Create the details object
-	var details = { any: undefined, first: undefined, last: undefined, nth: [] };
+	var details = { any: undefined, first: undefined, last: undefined, empty: undefined, nth: [] };
 
 	// Loop over the sub-templates
 	for (var tid in template.sub) {
@@ -484,6 +491,8 @@ function makeForTemplateDetails(template) {
 			details.first = subtemplate;
 		else if (subtemplate.name == "last")
 			details.last = subtemplate;
+		else if (subtemplate.name == "empty")
+			details.empty = subtemplate;
 		else if (subtemplate.name == "nth") {
 
 			// Add the "nth" sub-template
@@ -522,14 +531,14 @@ function makeForTemplateDetails(template) {
 	// Clear the sub-templates collection
 	details.any.sub = {};
 
-	// Remove ALL the "first", "last" and "nth" sub-templates
+	// Remove ALL the "first", "last", "empty" and "nth" sub-templates
 	for (var tid in template.sub) {
 
 		// Access the sub-template
 		var subtemplate = template.sub[tid];
 
-		// Push in the proper order, "elseif" then final "else"
-		if ((subtemplate.name == "first") || (subtemplate.name == "last") || (subtemplate.name == "nth")) {
+		// Remove the "first", "last", "empty" and "nth" sub-template references
+		if ((subtemplate.name == "first") || (subtemplate.name == "last") || (subtemplate.name == "empty") || (subtemplate.name == "nth")) {
 
 			// Remove the sub-template key from the template text
 			details.any.text = replaceAll(details.any.text, tid, '', true);
@@ -537,7 +546,7 @@ function makeForTemplateDetails(template) {
 		}
 		else {
 
-			// Add the unrelated (not "first", "last" or "nth") sub-template
+			// Add the unrelated (not "first", "last", "empty" or "nth") sub-template
 			details.any.sub[tid] = subtemplate;
 
 		}
@@ -545,7 +554,7 @@ function makeForTemplateDetails(template) {
 	}
 
 	// Determine the template status
-	if ((details.first != undefined) || (details.last != undefined) || (details.nth.length > 0))
+	if ((details.first != undefined) || (details.last != undefined) || (details.empty != undefined) || (details.nth.length > 0))
 		details.hasTargets = true;
 	else
 		details.hasTargets = false;
@@ -572,6 +581,8 @@ function selectForListTemplate(template, index, total, item) {
 			res = template.details.first;
 		else if ((template.details.last != undefined) && (index == (total - 1)))
 			res = template.details.last;
+		else if ((template.details.empty != undefined) && (index == -1) && (total == 0))
+			res = template.details.empty;
 		else {
 
 			// Loop over the NTH items
@@ -639,7 +650,7 @@ function selectForListTemplate(template, index, total, item) {
 function makeWithTemplateDetails(template) {
 
 	// Create the details object
-	var details = { first: undefined, last: undefined, nth: [] };
+	var details = { first: undefined, last: undefined, empty: undefined, nth: [] };
 
 	// Loop over the sub-templates
 	for (var tid in template.sub) {
@@ -652,6 +663,8 @@ function makeWithTemplateDetails(template) {
 			details.first = subtemplate;
 		else if (subtemplate.name == "last")
 			details.last = subtemplate;
+		else if (subtemplate.name == "empty")
+			details.empty = subtemplate;
 		else if (subtemplate.name == "nth") {
 
 			// Add the "nth" sub-template
@@ -791,38 +804,62 @@ function processFOR(template) {
 	// Select the collection
 	var collection = selectCollection(template, template.view, template.attrs['each'], template.attrs['where']);
 
-	// Loop over the objects
-	for (var oidx = 0; oidx < collection.items.length; oidx++) {
+	// If there are items in the collection process, otherwise, process the "empty" sub-template
+	if (collection.items.length > 0) {
 
-		// Access the item
-		var oitem = collection.items[oidx];
+		// Loop over the objects
+		for (var oidx = 0; oidx < collection.items.length; oidx++) {
 
-		// Check the item state
-		if ((oitem == null) || (oitem == undefined))
-			continue;
+			// Access the item
+			var oitem = collection.items[oidx];
 
-		// Access the item (as a string)
-		var oitemStr = oitem.toString();
+			// Check the item state
+			if ((oitem == null) || (oitem == undefined))
+				continue;
 
-		// Determine the current "index"
-		var idx = (((collection.names != undefined) && (collection.names.length > 0)) ? collection.names[oidx] : (oidx + 1).toString());
+			// Access the item (as a string)
+			var oitemStr = oitem.toString();
 
-		// Determine the current value as a string
-		var str = (((oitemStr != undefined) && (oitemStr != ({}).toString())) ? oitemStr : '');
+			// Determine the current "index"
+			var idx = (((collection.names != undefined) && (collection.names.length > 0)) ? collection.names[oidx] : (oidx + 1).toString());
+
+			// Determine the current value as a string
+			var str = (((oitemStr != undefined) && (oitemStr != ({}).toString())) ? oitemStr : '');
+
+			// Determine the template to use for the item
+			var otmpl = selectForListTemplate(template, oidx, collection.items.length, oitem);
+
+			// Set the "special" view properties
+			oitem.Parent = template.view;
+
+			// Set the "index", "count" and "str" values
+			otmpl.index = idx;
+			otmpl.count = collection.items.length;
+			otmpl.str = str;
+
+			// Process the sub-template
+			res += processTemplate(otmpl, oitem);
+
+		}
+
+	}
+	else {
 
 		// Determine the template to use for the item
-		var otmpl = selectForListTemplate(template, oidx, collection.items.length, oitem);
+		var otmpl = selectForListTemplate(template, -1, 0, null);
 
-		// Set the "special" view properties
-		oitem.Parent = template.view;
+		// If there is a template
+		if (otmpl != undefined) {
 
-		// Set the "index", "count" and "str" values
-		otmpl.index = idx;
-		otmpl.count = collection.items.length;
-		otmpl.str = str;
+			// Set the "index", "count" and "str" values
+			otmpl.index = -1;
+			otmpl.count = 0;
+			otmpl.str = '';
 
-		// Process the sub-template
-		res += processTemplate(otmpl, oitem);
+			// Process the sub-template
+			res += processTemplate(otmpl, template.view);
+
+		}
 
 	}
 
@@ -843,38 +880,64 @@ function processWITH(template) {
 	if (template.details == undefined)
 		template.details = makeWithTemplateDetails(template);
 
-	// Loop over the NTH items
-	for (var nidx = 0; nidx < template.details.nth.length; nidx++) {
+	// If there are items in the collection process, otherwise, process the "empty" sub-template
+	if (collection.items.length > 0) {
 
-		// Access the NTH item
-		var oitem = collection.at(template.details.nth[nidx].at);
+		// Loop over the NTH items
+		for (var nidx = 0; nidx < template.details.nth.length; nidx++) {
 
-		// Check the item state
-		if ((oitem == null) || (oitem == undefined))
-			continue;
+			// Access the NTH item
+			var oitem = collection.at(template.details.nth[nidx].at);
 
-		// Access the item (as a string)
-		var oitemStr = oitem.toString();
+			// Check the item state
+			if ((oitem == null) || (oitem == undefined))
+				continue;
 
-		// Determine the current "index"
-		var idx = template.details.nth[nidx].at;
+			// Access the item (as a string)
+			var oitemStr = oitem.toString();
 
-		// Determine the current value as a string
-		var str = (((oitemStr != undefined) && (oitemStr != ({}).toString())) ? oitemStr : '');
+			// Determine the current "index"
+			var idx = template.details.nth[nidx].at;
 
-		// Determine the template to use for the item
-		var otmpl = template.details.nth[nidx].template;
+			// Determine the current value as a string
+			var str = (((oitemStr != undefined) && (oitemStr != ({}).toString())) ? oitemStr : '');
 
-		// Set the "special" view properties
-		oitem.Parent = template.view;
+			// Determine the template to use for the item
+			var otmpl = template.details.nth[nidx].template;
 
-		// Set the "index", "count" and "str" values
-		otmpl.index = idx;
-		otmpl.count = collection.items.length;
-		otmpl.str = str;
+			// Set the "special" view properties
+			oitem.Parent = template.view;
 
-		// Process the sub-template
-		res += processTemplate(otmpl, oitem);
+			// Set the "index", "count" and "str" values
+			otmpl.index = idx;
+			otmpl.count = collection.items.length;
+			otmpl.str = str;
+
+			// Process the sub-template
+			res += processTemplate(otmpl, oitem);
+
+		}
+	}
+	else {
+
+		// Access the "empty" template
+		var otmpl = template.details.empty;
+
+		// If there is a template
+		if (otmpl != undefined) {
+
+			// Set the "special" view properties
+			oitem.Parent = template.view;
+
+			// Set the "index", "count" and "str" values
+			otmpl.index = -1;
+			otmpl.count = 0;
+			otmpl.str = '';
+
+			// Process the sub-template
+			res += processTemplate(otmpl, template.view);
+
+		}
 
 	}
 
