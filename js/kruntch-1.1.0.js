@@ -227,8 +227,12 @@
 		// Write out the text
 		function writeTemplateText(templateID, text) {
 
+			// Check the state
+			if ((node == undefined) || (node == null))
+				return;
+
 			// If the output "node" supports "Write", pass the call
-			if ((node != undefined) && (node.Write != undefined)) {
+			if (node.Write != undefined) {
 				node.Write(text);
 				return;
 			}
