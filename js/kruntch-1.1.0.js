@@ -201,23 +201,10 @@
 		// Replace the specified "node" with the "replacement"
 		// If the replacement is an HTML element object, replace direclty, otherwise, parse
 		// and replace with all nodes contained in the replacement
-		function appendNode(parent, text) {
-
-			// Create a new "DIV"
-			var el = document.createElement("div");
+		function setNode(parent, text) {
 
 			// Set the innerHTML
-			el.innerHTML = text;
-
-			var nodes = [];
-
-			// Populate the nodes
-			for (var i = 0; i < el.childNodes.length; i++)
-				nodes.push(el.childNodes[i]);
-
-			// Insert all the nodes
-			for (i = 0; i < nodes.length; i++)
-				parent.appendChild(nodes[i]);
+			parent.innerHTML = text;
 
 			// Return
 			return;
@@ -237,8 +224,8 @@
 				return;
 			}
 
-			// Append
-			appendNode(node, text);
+			// Set
+			setNode(node, text);
 
 			// Return
 			return;
