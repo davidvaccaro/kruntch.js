@@ -13,6 +13,7 @@ A Simple, Efficient and Non-Invasive Templating Engine for JavaScript.
 - Fixed a minor issue in the collection accesing function that prevented [#] from working under certain circumstances.
 - Fixed issue with the "to" parameter and TemplateIO.Write... must check for undefined or null before writing!
 - Implemented "set" (set innerHTML) for TemplateIO.Write rather than "append"... judgement call but probably closer to what most situations would require/expect.
+- Added minorHTMLDecode function to perform a limited HTML decode of all "code" values ({}, {{}}, where and condition clause values).  This helps to support template containers (HTML5 template tag) that automatically encode textual contents.
 
 1.1.0
 - Major re-write removing all DOM (document, window, etc.) constructs in an effort to make kruntch totally portable to node.js.

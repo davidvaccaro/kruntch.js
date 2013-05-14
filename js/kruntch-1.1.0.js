@@ -345,6 +345,17 @@
         return str;
     };
 
+    // Decode common HTML encoded items such as &amp; &lt; &gt;
+    function minorHTMLDecode(str) {
+		if (str.indexOf('&') > -1) {
+			// Add these on an "as-needed" basis
+			str = replaceAll(str, '&amp;', '&', true);
+			str = replaceAll(str, '&lt;', '<', true);
+			str = replaceAll(str, '&gt;', '>', true);
+		}
+		return str;
+	};
+
     // Parse the Name.Name.Name... property string
     // Examples:
     //  1. Name                      = Value
@@ -1177,7 +1188,7 @@
             template.pre = [template.pre.slice(0, begin), key, template.pre.slice(end + 2)].join('');
 
             // Add the property into the lookup
-            template.scripts[key] = script.trim();
+            template.scripts[key] = minorHTMLDecode(script.trim());
 
         }
 
@@ -1217,7 +1228,7 @@
             template.pre = [template.pre.slice(0, begin), key, template.pre.slice(end + 1)].join('');
 
             // Add the property into the lookup
-            template.code[key] = code.trim();
+            template.code[key] = minorHTMLDecode(code.trim());
 
         }
 
@@ -1271,7 +1282,7 @@
                         template.pre = [template.pre.slice(0, begin), key, template.pre.slice(end)].join('');
 
                         // Add the property into the lookup
-                        codes[key] = code.trim();
+                        codes[key] = minorHTMLDecode(code.trim());
 
                     }
 
