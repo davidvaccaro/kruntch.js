@@ -4,9 +4,16 @@ A Simple, Efficient and Non-Invasive Templating Engine for JavaScript.
 
 #Curent Stable Version
 
-1.1.0
+1.2.0
 
 #Change Log
+
+1.2.0
+- Fixed "empty" template processing for collections with 0 elements.
+- Added "Root" special view object reference when binding new view objects.
+- Added "Parents" special view object collection when binding new view objects.
+- Added "Family" special view object when binding new view objects.
+- Added "<apply>" template processing construct.
 
 1.1.1
 - Added "empty" construct for collections which allows template authors to specify a sub-template to be applied in the event that the collection is empty.
